@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AcousticSensing</string>
+
+    <string name="textview_acoustic">Acoustic : </string>
+
+    <string-array name="spinner_acoustic">
+        <item>Sine</item>
+        <item>Cosine</item>
+    </string-array>
+    
+    <string name="button_speaker_send">Send</string>
+    <string name="button_microphone_receive">Receive</string>
+
+
+</resources>
