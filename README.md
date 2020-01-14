@@ -1,0 +1,3 @@
+# AcousticSensing
+A system of sound perception and data processing.
+Including cos wave emitting, sound receiving, data preprocessing and more...
