@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Acoustic Sensing"
-        android:textSize="32"
+        android:textSize="32dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -62,5 +62,15 @@
         app:layout_constraintBottom_toBottomOf="@+id/spinner_acoustic"
         app:layout_constraintEnd_toStartOf="@+id/spinner_acoustic"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button_together"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="79dp"
+        android:text="Together"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_receive" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
