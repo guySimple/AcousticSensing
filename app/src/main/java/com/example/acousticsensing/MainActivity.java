@@ -96,13 +96,16 @@ public class MainActivity extends AppCompatActivity {
             switch (v.getId()){
                 case R.id.button_send: {
                     startPlayingNow();
+                    break;
                 }
                 case R.id.button_receive:{
                     startRecordingNow();
+                    break;
                 }
                 case R.id.button_together:{
                     startPlayingNow();
                     startRecordingNow();
+                    break;
                 }
             }
         }
