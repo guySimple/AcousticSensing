@@ -14,6 +14,8 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Process;
 import android.util.Log;
 import android.view.View;
@@ -30,36 +32,39 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.media.AudioFormat.CHANNEL_IN_MONO;
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 
 public class MainActivity extends AppCompatActivity {
     // UI component
-    public Button button_send;
-    public Button button_receive;
-    public Button button_together;
+    private Button button_send;
+    private Button button_receive;
+    private Button button_together;
 
     //声音参数
-    public int frequence;                       //采样率
-    public int channel;                         //通道数
-    public int audioEncoding;                   //编码方式
+    private int frequence;                       //采样率
+    private int channel;                         //通道数
+    private int audioEncoding;                   //编码方式
 
     //
-    public boolean isRecording;                 //是否正在录音
-    public int recordBuffer;
-    public int playBuffer;
-    public AudioRecord audioRecord;
-    public AudioTrack audioTrack;
+    private boolean isRecording;                 //是否正在录音
+    private boolean stop = true;
+    private int recordBuffer;
+    private int playBuffer;
+    private AudioRecord audioRecord;
+    private AudioTrack audioTrack;
 
     //文件和保存路径
-    public String sdCardDir;
-    public String fName_record;                 //保存文件名(pcm文件)
-    public String fName_result;                 //转换后得文件名（wav文件）
+    private String sdCardDir;
+    private String fName_record;                 //保存文件名(pcm文件)
+    private String fName_result;                 //转换后得文件名（wav文件）
 
     //调试参数
-    public static String tag = "test";
-    public boolean stop = true;
+    private static String tag = "test";
+    private int cnt = 0;
 
 
     @Override
@@ -83,11 +88,23 @@ public class MainActivity extends AppCompatActivity {
         requestRecordAudioPermission();
     }
 
+    public void UI_change(String component,String state){
+        switch (component){
+            case "button_recieve":{
+                button_receive.setText(state);
+                break;
+            }
+            case "button_together":{
+                button_together.setText(state);
+                break;
+            }
+        }
+    }
+
     public void parameter_Init(){
         frequence = 48000;
         channel = AudioFormat.CHANNEL_CONFIGURATION_MONO;
         audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-
     }
     //按钮事件
    class buttonClickListener implements View.OnClickListener{
@@ -95,14 +112,29 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.button_send: {
+                    Toast.makeText(getApplicationContext(), "开始播放", Toast.LENGTH_SHORT).show();
                     startPlayingNow();
+                    break;
                 }
                 case R.id.button_receive:{
-                    startRecordingNow();
+                    if ((cnt % 2) == 0){
+                        button_receive.setText("Stop");
+                        startRecordingNow();
+                        Toast.makeText(getApplicationContext(), "开始录制", Toast.LENGTH_SHORT).show();
+                    }else{
+                        stop = false;
+                        button_receive.setText("Recieve");
+                        Toast.makeText(getApplicationContext(), "录制结束", Toast.LENGTH_SHORT).show();
+                    }
+                    cnt++;
+                    Log.w(tag,"cnt = " + String.valueOf(cnt));
+                    break;
                 }
                 case R.id.button_together:{
+                    Toast.makeText(getApplicationContext(), "开始播放并录制", Toast.LENGTH_SHORT).show();
                     startPlayingNow();
                     startRecordingNow();
+                    break;
                 }
             }
         }
@@ -112,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
         AudioRecord是Android系统提供的用于实现录音的功能类。
         AudioRecord录制的是PCM格式的音频文件，需要用AudioTrack来播放。也可以使用MediaCodec编码成播放器可以播放的音频文件。
      */
-
 
     //录音权限申请
     private void requestRecordAudioPermission() {
@@ -166,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
         mDis = getResources().openRawResource(R.raw.wave);
         //mDis = getResources().openRawResource(R.raw.test);
 
-
         //开始播放
         byte data[] = new byte[playBuffer];
 
@@ -183,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         stopPlaying();
     }
 
+    //停止播放
     public void stopPlaying(){
         Log.w(tag,"stopPlaying");
         audioTrack.stop();
@@ -229,27 +260,33 @@ public class MainActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        int count = 0;
         while (isRecording && audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING){
-            if (stop == false)
+            //重置录音状态，便于重复使用
+            if (stop == false){
+                stop = true;
                 break;
+            }
             int byteRead = audioRecord.read(data, 0, recordBuffer);
-            /*if(count>1280)
-                isRecording = false;
-            if (byteRead > 4) {
-                Log.w(tag, "First 4 bytes = (" + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + ")");
-                count+=4;
-            }*/
             try {
                 os.write(data);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+
         //停止录音，并将所得的pcm文件转化为wav文件
         stopRecord();
         PcmToWavUtil pcmToWavUtil = new PcmToWavUtil(frequence,CHANNEL_IN_MONO,ENCODING_PCM_16BIT);
         pcmToWavUtil.pcmToWav(sdCardDir+fName_record,sdCardDir+fName_result);
+
+        /*final String s = "Play & Record";
+        button_together.post(new Runnable() {
+            @Override
+            public void run() {
+                button_together.setText(s);
+            }
+        });*/
     }
 
     //停止录音
@@ -265,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
     //创建文件
     public void createFile(String path,String filename){
-        Log.w(tag,"createFile");
+        Log.w(tag,"createFile"+ filename);
         File file = new File(path+filename);
         //如果已存在则删除原文件
         if(file.exists()){

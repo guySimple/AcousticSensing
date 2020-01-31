@@ -8,9 +8,9 @@
         <item>Cosine</item>
     </string-array>
     
-    <string name="button_speaker_send">Send</string>
+    <string name="button_speaker_send">Play</string>
     <string name="button_microphone_receive">Receive</string>
-    <string name="button_together">Together</string>
+    <string name="button_together">Play &amp; Record</string>
 
 
 </resources>
