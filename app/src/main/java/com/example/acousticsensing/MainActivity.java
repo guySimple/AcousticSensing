@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 case R.id.button_receive:{
+<<<<<<< HEAD
                     if ((cnt % 2) == 0){
                         button_receive.setText("Stop");
                         startRecordingNow();
@@ -128,6 +129,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     cnt++;
                     Log.w(tag,"cnt = " + String.valueOf(cnt));
+=======
+                    startRecordingNow();
+>>>>>>> 7dfb45cf4c9506cdf4661942fd0daf999e873ad1
                     break;
                 }
                 case R.id.button_together:{
